@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from pprint import pprint
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
-import tkinter
-from tkinter import filedialog
 import os
 
 
