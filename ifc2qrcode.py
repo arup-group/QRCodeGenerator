@@ -1,46 +1,72 @@
-from pprint import pprint
-import qrcode
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
+import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
-import tkinter
-from tkinter import filedialog
+import qrcode
+import config.config_def as config
 import os
-b=[]
-c=[]
+from pyfiglet import Figlet
+import ifcopenshell
 
-F=open("IFC Test asset_name.ifc")
-lines = F.readlines()
-for line in lines:
-    if "#41" in line:
-        x=line.split(",")
-        y=line.split("(")
-        z=y[1]
-        a=z.split(",")
-
-        b.append(a[0].strip("'"))
+from bs4 import BeautifulSoup
+import requests
 
 
-b = list(filter(None, b))
-b.remove(b[0])
-for line in lines:
-    for i in range (0,len(b)):
-        if b[i] in line:
-            d=line.split(",")
-            c.append(d[2])
-
-
-for j in range (0, len(b)):
-    qr=qrcode.make(b[j])
-    width, height = qr.size
-    bi=Image.new('RGBA', (width+10, height+(height//5)), 'white')
-    bi.paste(qr, (5, 5, (width+5), (height+5)))
-    caption=c[j]
-    font= ImageFont.truetype("arial.ttf", 25)
-    w,h = font.getsize(caption)
-    draw=ImageDraw.Draw(bi)
-    draw.text(((width-w)/2, (height+((height/5)-h)/2)), caption, font=font, fill='black')
-    bi.save(b[j] + ".png")
-    j+=1
-    
+__author__ = "Francesco Anselmo, Anushan Kirupakaran, Annalisa Romano"
+__copyright__ = "Copyright 2019, Francesco Anselmo"
+__credits__ = ["Francesco Anselmo"]
+__license__ = "MIT"
+__version__ = "0.1"
+__maintainer__ = "Francesco Anselmo, , Anushan Kirupakaran, Annalisa Romano"
+__email__ = "francesco.anselmo@arup.com, anushan.kirupakaran@arup.com, annalisa.romano@arup.com"
+__status__ = "Dev"
 
 
 
+IFC_FILE_PATH = config.IFC_FILE_PATH
+OUTFOLDER_IFC = config.OUTFOLDER_IFC
+
+if not os.path.exists(OUTFOLDER_IFC):
+    os.mkdir(OUTFOLDER_IFC)
+
+
+def show_title():
+    """Show the program title
+    """
+    f1 = Figlet(font='standard')
+    print(f1.renderText('ifc2QRcode'))
+
+
+# url="https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)"
+#
+# # Make a GET request to fetch the raw HTML content
+# html_content = requests.get(url).text
+#
+# # Parse the html content
+# soup = BeautifulSoup(html_content, "lxml")
+# print(soup.prettify()) # print the parsed data of html
+
+f = ifcopenshell.open(IFC_FILE_PATH)
+
+products = f.by_type('IfcProduct')
+for product in products:
+    print(product.is_a())
+
+
+# wall = f.by_type('IfcFlowTerminal')[0]
+# print(wall.GlobalId)
+# print(wall.Name)
+
+
+
+# def main():
+#
+#     show_title()
+#
+#
+#
+# if __name__ == "__main__":
+#     main()
+#

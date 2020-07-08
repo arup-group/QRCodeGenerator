@@ -1,4 +1,4 @@
 gspread
 oauth2client
 qrcode
-PIL
+pillow
