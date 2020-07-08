@@ -9,8 +9,8 @@ import config.config_def as config
 import os
 from pyfiglet import Figlet
 import ifcopenshell
+import  re
 import ssl
-
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -20,7 +20,7 @@ __copyright__ = "Copyright 2019, Francesco Anselmo"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
 __version__ = "0.1"
-__maintainer__ = "Francesco Anselmo, , Anushan Kirupakaran, Annalisa Romano"
+__maintainer__ = "Francesco Anselmo, Anushan Kirupakaran, Annalisa Romano"
 __email__ = "francesco.anselmo@arup.com, anushan.kirupakaran@arup.com, annalisa.romano@arup.com"
 __status__ = "Dev"
 
@@ -29,7 +29,8 @@ __status__ = "Dev"
 IFC_FILE_PATH = config.IFC_FILE_PATH
 OUTFOLDER_IFC = config.OUTFOLDER_IFC
 URL_BDNS = config.URL_BDNS
-DEBUG = False
+DEBUG = config.DEBUG
+BDNS_VALIDATION =  config.BDNS_VALIDATION
 
 
 if not os.path.exists(OUTFOLDER_IFC):
@@ -38,7 +39,7 @@ if not os.path.exists(OUTFOLDER_IFC):
 
 def create_qrcode(row,boxsize):
 
-    caption = row['abbreviation']+'-'+row['id']
+    caption = row['asset_name']
     boxsize = boxsize
 
     print("Creating the qr code for %s"%caption)
@@ -87,8 +88,27 @@ def main():
 
     res = pd.merge(df, bdns_abb, how='left', on=['ifc_class']).dropna(subset=['abbreviation'])
     res['id'] =  res['name'].astype(str).apply(lambda x: x.split(':')[-1])
+    res['asset_name'] = res['abbreviation']+'-'+res['id']
 
     if DEBUG: print(res.head())
+
+    if BDNS_VALIDATION:
+
+        pat_guid_ifc = re.compile("[A-Za-z0-9_$]{22}$")
+        pat_guid_hex = re.compile("([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$")
+        print('The following devices fail the ID validation tests:')
+        for row in res.iterrows():
+            if not((pat_guid_hex.match(row[1]['asset_guid'])) or (pat_guid_ifc.match(row[1]['asset_guid']))):
+                print(row[1]['asset_name'], row[1]['asset_guid'])
+        print("_________________")
+
+        pat_abb = re.compile("[A-Z]{2,6}-[0-9]{1,6}$")
+        pat_prefix = re.compile("[A-Z]*-[A-Z]*-[A-Z0-9]*_[A-Z]{2,6}-[0-9]{1,6}$")
+        print('The following devices fail the device role name validation tests:')
+        for row in res.iterrows():
+            if not ((pat_abb.match(row[1]['asset_name'])) or (pat_prefix.match(row[1]['asset_name']))):
+                print(row[1]['asset_name'], row[1]['asset_guid'])
+        print("_________________")
 
     if res.empty:
         print('None of the ifc classes matches the BDNS ones .....')

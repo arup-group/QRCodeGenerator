@@ -9,6 +9,9 @@ import qrcode
 import config.config_def as config
 import os
 from pyfiglet import Figlet
+import re
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 __author__ = "Francesco Anselmo, Anushan Kirupakaran, Annalisa Romano"
@@ -26,6 +29,8 @@ SPREADSHEET_ID = config.SPREADSHEET_ID
 WORKSHEET = config.WORKSHEET
 CREDENTIAL_FILE_PATH = config.CREDENTIAL_FILE_PATH
 OUTFOLDER_GS = config.OUTFOLDER_GS
+URL_BDNS = config.URL_BDNS
+BDNS_VALIDATION = config.BDNS_VALIDATION
 
 if not os.path.exists(OUTFOLDER_GS):
     os.mkdir(OUTFOLDER_GS)
@@ -44,9 +49,9 @@ SCOPES = ["https://spreadsheets.google.com/feeds",
 
 
 def create_qrcode(row,dict_font):
-    font = row['size']
     caption = row['asset_name']
     try:
+        font = row['size']
         boxsize = dict_font[font]
     except:
         boxsize = 10
@@ -84,9 +89,27 @@ def main():
     headers = data.pop(0)
     df = pd.DataFrame(data, columns=headers)
 
+    if BDNS_VALIDATION:
+
+        pat_guid_ifc = re.compile("[A-Za-z0-9_$]{22}$")
+        pat_guid_hex = re.compile("([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$")
+        print('The following devices fail the ID validation tests:')
+        for row in df.iterrows():
+            if not((pat_guid_hex.match(row[1]['asset_guid'])) or (pat_guid_ifc.match(row[1]['asset_guid']))):
+                print(row[1]['asset_name'], row[1]['asset_guid'])
+        print("_________________")
+
+        pat_abb = re.compile("[A-Z]{2,6}-[0-9]{1,6}$")
+        pat_prefix = re.compile("[A-Z]*-[A-Z]*-[A-Z0-9]*_[A-Z]{2,6}-[0-9]{1,6}$")
+        print('The following devices fail the device role name validation tests:')
+        for row in df.iterrows():
+            if not ((pat_abb.match(row[1]['asset_name'])) or (pat_prefix.match(row[1]['asset_name']))):
+                print(row[1]['asset_name'], row[1]['asset_guid'])
+        print("_________________")
+
+
     df.apply(create_qrcode, dict_font=DICTFONT, axis=1)
 
-    print()
 
 
 if __name__ == "__main__":
