@@ -10,8 +10,8 @@ import os
 from pyfiglet import Figlet
 import ifcopenshell
 
-from bs4 import BeautifulSoup
-import requests
+#from bs4 import BeautifulSoup
+#import requests
 
 
 __author__ = "Francesco Anselmo, Anushan Kirupakaran, Annalisa Romano"

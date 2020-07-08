@@ -2,3 +2,5 @@ gspread
 oauth2client
 qrcode
 pillow
+pandas
+pyfiglet
