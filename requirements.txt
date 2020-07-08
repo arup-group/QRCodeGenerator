@@ -1,4 +1,6 @@
 gspread
 oauth2client
 qrcode
-PIL
+pillow
+pandas
+pyfiglet
