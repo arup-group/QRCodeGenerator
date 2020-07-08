@@ -11,5 +11,5 @@ OUTFOLDER_GS = 'outputGSheet'
 
 # For reading from a ifc file
 
-IFC_FILE_PATH = 'IFC Test asset_name_different_families.ifc'
+IFC_FILE_PATH = 'test/IFC Test asset_name.ifc'
 OUTFOLDER_IFC = 'outputIFC'
