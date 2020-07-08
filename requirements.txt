@@ -4,3 +4,4 @@ qrcode
 pillow
 pandas
 pyfiglet
+ssl

@@ -1,5 +1,4 @@
-TYPE_INPUT_FILE = 'gsheet'
-
+URL_BDNS = 'https://raw.githubusercontent.com/theodi/BDNS/master/BDNS_Abbreviations_Register.csv'
 
 # For reading from a gsheet
 SPREADSHEET_ID = '1O0-xqhXqkBIxdCF81NNyP5_yEINe75wXKkW12d54ApI'
