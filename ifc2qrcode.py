@@ -9,7 +9,7 @@ import config.config_def as config
 import os
 from pyfiglet import Figlet
 import ifcopenshell
-import  re
+import re
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -27,19 +27,21 @@ __status__ = "Dev"
 
 
 IFC_FILE_PATH = config.IFC_FILE_PATH
-OUTFOLDER_IFC = config.OUTFOLDER_IFC
+OUTFOLDER = config.OUTFOLDER
 URL_BDNS = config.URL_BDNS
 DEBUG = config.DEBUG
 BDNS_VALIDATION =  config.BDNS_VALIDATION
 
 
-if not os.path.exists(OUTFOLDER_IFC):
-    os.mkdir(OUTFOLDER_IFC)
+if not os.path.exists(OUTFOLDER):
+    os.mkdir(OUTFOLDER)
 
 
 def create_qrcode(row,boxsize):
-
-    caption = row['asset_name']
+    try:
+        caption = row['asset_name']
+    except:
+        caption = row['abbreviation']+"-"+row['RevitTag']
     boxsize = boxsize
 
     print("Creating the qr code for %s"%caption)
@@ -52,7 +54,7 @@ def create_qrcode(row,boxsize):
     w, h = Imfont.getsize(caption)
     draw = ImageDraw.Draw(bi)
     draw.text(((width - w) / 2, (height + ((height / 5) - h) / 2)), caption, font=Imfont, fill='black')
-    bi.save(OUTFOLDER_IFC + "/%s.png" % caption)
+    bi.save(OUTFOLDER + "/%s.png" % caption)
 
 
 def show_title():
@@ -60,7 +62,6 @@ def show_title():
     """
     f1 = Figlet(font='standard')
     print(f1.renderText('ifc2QRcode'))
-
 
 
 def main():
@@ -78,28 +79,41 @@ def main():
     # Create a df with all ifc classes
     d = []
     for product in products:
+        asset_name = ''
+        definitions = product.IsDefinedBy
+        for definition in definitions:
+            if 'IfcRelDefinesByProperties' == definition.is_a():
+                property_definition = definition.RelatingPropertyDefinition
+                if 'Data' == property_definition.Name:
+                    for par in property_definition.HasProperties:
+                        if par.Name == 'asset_name':
+                            asset_name = par.NominalValue[0]
         d.append({
             'ifc_class': product.is_a(),
             'asset_guid': product.GlobalId,
-            'name': product.Name
+            'RevitName': product.Name,
+            'asset_name': asset_name,
+
         })
+
     df = pd.DataFrame(d)
-
-
-    res = pd.merge(df, bdns_abb, how='left', on=['ifc_class']).dropna(subset=['abbreviation'])
-    res['id'] =  res['name'].astype(str).apply(lambda x: x.split(':')[-1])
-    res['asset_name'] = res['abbreviation']+'-'+res['id']
-
-    if DEBUG: print(res.head())
+    res = pd.merge(df, bdns_abb, how='left', on=['ifc_class']).dropna(subset=['asset_name', 'abbreviation'])
+    res['RevitTag'] = res['RevitName'].astype(str).apply(lambda x: x.split(':')[-1])
 
     if BDNS_VALIDATION:
 
         pat_guid_ifc = re.compile("[A-Za-z0-9_$]{22}$")
-        pat_guid_hex = re.compile("([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$")
-        print('The following devices fail the ID validation tests:')
+        pat_guid_hex = re.compile(
+            "([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$")
+        print('The following devices fail the GUID validation tests:')
         for row in res.iterrows():
-            if not((pat_guid_hex.match(row[1]['asset_guid'])) or (pat_guid_ifc.match(row[1]['asset_guid']))):
+            if not ((pat_guid_hex.match(row[1]['asset_guid'])) or (pat_guid_ifc.match(row[1]['asset_guid']))):
                 print(row[1]['asset_name'], row[1]['asset_guid'])
+        print("_________________")
+
+        # Select all duplicate rows based on one column
+        duplicateRowsDF = res[res.duplicated(['asset_guid'])]
+        print("Duplicate GUID are:", duplicateRowsDF.values, sep='\n')
         print("_________________")
 
         pat_abb = re.compile("[A-Z]{2,6}-[0-9]{1,6}$")
@@ -108,7 +122,12 @@ def main():
         for row in res.iterrows():
             if not ((pat_abb.match(row[1]['asset_name'])) or (pat_prefix.match(row[1]['asset_name']))):
                 print(row[1]['asset_name'], row[1]['asset_guid'])
-        print("_________________")
+        print("----------------")
+
+        print('The following devices fail to follow the BDNS abbreviation:')
+        for row in res.iterrows():
+            if not row[1]['asset_name'].split('-')[0] == row[1]['abbreviation']:
+                print((row[1]['asset_name']))
 
     if res.empty:
         print('None of the ifc classes matches the BDNS ones .....')
