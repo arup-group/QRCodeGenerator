@@ -5,7 +5,6 @@ class BDNSValidator():
     def __init__(self, df):
         self.df = df
 
-
     def validate_GUID(self):
         pat_guid_ifc = re.compile("[A-Za-z0-9_$]{22}$")
         pat_guid_hex = re.compile("([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$")

@@ -1,6 +1,6 @@
 creds.json
-outputIFC
-outputGSheet
+output
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

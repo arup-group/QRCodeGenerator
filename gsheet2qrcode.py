@@ -112,8 +112,6 @@ def main():
         print('The following devices fail the device role name validation tests:', *failed_DeviceName, sep = "\n")
         print("-------------------")
 
-
-    # Generate QR code
     df.apply(create_qrcode, dict_font=DICTFONT, axis=1)
 
 
