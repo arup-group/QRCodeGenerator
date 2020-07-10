@@ -52,6 +52,7 @@ By default it has been considered a size of 10, however the following options ha
     medium = 10
     large = 15
 
+An example of input file can be found here (git https://docs.google.com/spreadsheets/d/1O0-xqhXqkBIxdCF81NNyP5_yEINe75wXKkW12d54ApI/edit?usp=sharing)
 
 To run the script use the following command line:
 
