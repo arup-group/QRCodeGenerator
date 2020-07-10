@@ -5,12 +5,12 @@
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 import qrcode
-import config.config_def as config
 import os
 from pyfiglet import Figlet
 import ifcopenshell
-import re
 from BDNS_validation import BDNSValidator
+from qrcode_gen import make_qrc
+import config.config_def as config
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -47,16 +47,8 @@ def create_qrcode(row,boxsize):
     boxsize = boxsize
 
     print("Creating the qr code for %s"%caption)
-    qr = qrcode.make(row['asset_guid'], box_size=boxsize)
-    width, height = qr.size
-    bi = Image.new('RGBA', (width + 10, height + (height // 5)), 'white')
-    bi.paste(qr, (5, 5, (width + 5), (height + 5)))
-
-    Imfont = ImageFont.load_default()
-    w, h = Imfont.getsize(caption)
-    draw = ImageDraw.Draw(bi)
-    draw.text(((width - w) / 2, (height + ((height / 5) - h) / 2)), caption, font=Imfont, fill='black')
-    bi.save(OUTFOLDER + "/%s.png" % caption)
+    img = make_qrc(row['asset_guid'], caption, boxsize)
+    img.save(OUTFOLDER + "/%s.png" % caption)
 
 
 def show_title():
@@ -101,11 +93,6 @@ def main():
     res = pd.merge(df, bdns_abb, how='left', on=['ifc_class']).dropna(subset=['asset_name', 'abbreviation'])
     res['RevitTag'] = res['RevitName'].astype(str).apply(lambda x: x.split(':')[-1])
 
-    if res.empty:
-        print('None of the ifc classes matches the BDNS ones .....')
-    else:
-        res.apply(create_qrcode, boxsize=10, axis=1)
-
 
     if BDNS_VALIDATION:
 
@@ -124,11 +111,16 @@ def main():
         print("-------------------")
 
 
-        faild_abb = BDNSVal.validate_abb()
+        faild_abb = BDNSVal.validate_abb(bdns_csv)
         print('The following devices fail to follow the BDNS abbreviation:', *faild_abb, sep="\n")
         print("-------------------")
 
 
+    # Generate QR code
+    if res.empty:
+        print('None of the ifc classes matches the BDNS ones .....')
+    else:
+        res.apply(create_qrcode, boxsize=10, axis=1)
 
 
 if __name__ == "__main__":

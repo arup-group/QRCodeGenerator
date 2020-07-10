@@ -6,3 +6,4 @@ pandas
 pyfiglet
 regex
 unittest2
+pyzbar

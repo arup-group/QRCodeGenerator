@@ -35,9 +35,9 @@ class BDNSValidator():
         return dup_list
 
 
-    def validate_abb(self):
+    def validate_abb(self, bdns_csv):
         abb_list = []
         for row in self.df.iterrows():
-            if not row[1]['asset_name'].split('-')[0] == row[1]['abbreviation']:
+            if not row[1]['asset_name'].split('-')[0] in bdns_csv['abbreviation']:
                 abb_list.append(row[1]['asset_name'])
         return abb_list

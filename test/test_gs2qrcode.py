@@ -1,10 +1,18 @@
+import sys
+import os
+parentdir = os.path.dirname(os.getcwd())
+sys.path.append(parentdir)
+
 from PIL import Image, ImageFont, ImageDraw
-import qrcode
 from pyzbar.pyzbar import decode
 import unittest
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import qrcode_gen
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 SCOPES = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/spreadsheets",
@@ -12,9 +20,10 @@ SCOPES = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 
 
-GUID = 'd3501378-dd50-47c5-ae26-806726e1b749'
-QRCODE = Image.open("./test_qrcode/AHU-1.png")
-CAPTION = 'AHU-1'
+
+expected_QR = Image.open("./test_qrcode/AHU-1.png")
+
+
 SPREADSHEET_ID = '1O0-xqhXqkBIxdCF81NNyP5_yEINe75wXKkW12d54ApI'
 WORKSHEET = 'Sheet1'
 CREDENTIAL_FILE_PATH = '../config/creds.json'
@@ -37,17 +46,15 @@ class TestQRCodeGenerator(unittest.TestCase):
         bdns_abb = bdns_csv[['abbreviation', 'ifc_class']]
 
 
-    def test_qrcodegen(self):
-        qr = qrcode.make(GUID, box_size=15)
-        width, height = qr.size
-        bi = Image.new('RGBA', (width + 10, height + (height // 5)), 'white')
-        bi.paste(qr, (5, 5, (width + 5), (height + 5)))
-        Imfont = ImageFont.load_default()
-        w, h = Imfont.getsize(CAPTION)
-        draw = ImageDraw.Draw(bi)
-        draw.text(((width - w) / 2, (height + ((height / 5) - h) / 2)), CAPTION, font=Imfont, fill='black')
 
-        self.assertEqual(decode(bi)[0], decode(QRCODE)[0])
+    def test_qrcodegen(self):
+
+        img = qrcode_gen.make_qrc('d3501378-dd50-47c5-ae26-806726e1b749', 'AHU-1', 15)
+        self.assertEqual(decode(img)[0], decode(expected_QR)[0])
+
+
+    # def test_validate_GUID(self):
+
 
 
 
