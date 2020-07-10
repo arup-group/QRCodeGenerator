@@ -9,7 +9,7 @@ import qrcode
 import config.config_def as config
 import os
 from pyfiglet import Figlet
-import re
+from BDNS_validation import BDNSValidator
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -28,7 +28,7 @@ __status__ = "Dev"
 SPREADSHEET_ID = config.SPREADSHEET_ID
 WORKSHEET = config.WORKSHEET
 CREDENTIAL_FILE_PATH = config.CREDENTIAL_FILE_PATH
-OUTFOLDER_GS = config.OUTFOLDER_GS
+OUTFOLDER_GS = config.OUTFOLDER
 URL_BDNS = config.URL_BDNS
 BDNS_VALIDATION = config.BDNS_VALIDATION
 
@@ -55,13 +55,11 @@ def create_qrcode(row,dict_font):
         boxsize = dict_font[font]
     except:
         boxsize = 10
-
     print("Creating the qr code for %s"%caption)
     qr = qrcode.make(row['asset_guid'], box_size=boxsize)
     width, height = qr.size
     bi = Image.new('RGBA', (width + 10, height + (height // 5)), 'white')
     bi.paste(qr, (5, 5, (width + 5), (height + 5)))
-
     Imfont = ImageFont.load_default()
     w, h = Imfont.getsize(caption)
     draw = ImageDraw.Draw(bi)
@@ -74,6 +72,7 @@ def show_title():
     """
     f1 = Figlet(font='standard')
     print(f1.renderText('GSheet2QRcode'))
+
 
 
 def main():
@@ -89,26 +88,26 @@ def main():
     headers = data.pop(0)
     df = pd.DataFrame(data, columns=headers)
 
+    df.apply(create_qrcode, dict_font=DICTFONT, axis=1)
+
     if BDNS_VALIDATION:
 
-        pat_guid_ifc = re.compile("[A-Za-z0-9_$]{22}$")
-        pat_guid_hex = re.compile("([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$")
-        print('The following devices fail the ID validation tests:')
-        for row in df.iterrows():
-            if not((pat_guid_hex.match(row[1]['asset_guid'])) or (pat_guid_ifc.match(row[1]['asset_guid']))):
-                print(row[1]['asset_name'], row[1]['asset_guid'])
-        print("_________________")
+        BDNSVal = BDNSValidator(df)
 
-        pat_abb = re.compile("[A-Z]{2,6}-[0-9]{1,6}$")
-        pat_prefix = re.compile("[A-Z]*-[A-Z]*-[A-Z0-9]*_[A-Z]{2,6}-[0-9]{1,6}$")
-        print('The following devices fail the device role name validation tests:')
-        for row in df.iterrows():
-            if not ((pat_abb.match(row[1]['asset_name'])) or (pat_prefix.match(row[1]['asset_name']))):
-                print(row[1]['asset_name'], row[1]['asset_guid'])
-        print("_________________")
+        failed_GUID = BDNSVal.validate_GUID()
+        print('The following devices fail the GUID validation tests:', *failed_GUID, sep = "\n")
+        print("-------------------")
+
+        checkdup = BDNSVal.check_duplicates()
+        print("Duplicate GUID are:", *checkdup, sep='\n')
+        print("-------------------")
+
+        failed_DeviceName = BDNSVal.validate_DeviceName()
+        print('The following devices fail the device role name validation tests:', *failed_DeviceName, sep = "\n")
+        print("-------------------")
 
 
-    df.apply(create_qrcode, dict_font=DICTFONT, axis=1)
+
 
 
 

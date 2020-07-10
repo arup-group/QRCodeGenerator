@@ -5,3 +5,4 @@ pillow
 pandas
 pyfiglet
 regex
+unittest2

@@ -10,6 +10,7 @@ import os
 from pyfiglet import Figlet
 import ifcopenshell
 import re
+from BDNS_validation import BDNSValidator
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -35,6 +36,7 @@ BDNS_VALIDATION =  config.BDNS_VALIDATION
 
 if not os.path.exists(OUTFOLDER):
     os.mkdir(OUTFOLDER)
+
 
 
 def create_qrcode(row,boxsize):
@@ -93,46 +95,40 @@ def main():
             'asset_guid': product.GlobalId,
             'RevitName': product.Name,
             'asset_name': asset_name,
-
-        })
+             })
 
     df = pd.DataFrame(d)
     res = pd.merge(df, bdns_abb, how='left', on=['ifc_class']).dropna(subset=['asset_name', 'abbreviation'])
     res['RevitTag'] = res['RevitName'].astype(str).apply(lambda x: x.split(':')[-1])
 
-    if BDNS_VALIDATION:
-
-        pat_guid_ifc = re.compile("[A-Za-z0-9_$]{22}$")
-        pat_guid_hex = re.compile(
-            "([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$")
-        print('The following devices fail the GUID validation tests:')
-        for row in res.iterrows():
-            if not ((pat_guid_hex.match(row[1]['asset_guid'])) or (pat_guid_ifc.match(row[1]['asset_guid']))):
-                print(row[1]['asset_name'], row[1]['asset_guid'])
-        print("_________________")
-
-        # Select all duplicate rows based on one column
-        duplicateRowsDF = res[res.duplicated(['asset_guid'])]
-        print("Duplicate GUID are:", duplicateRowsDF.values, sep='\n')
-        print("_________________")
-
-        pat_abb = re.compile("[A-Z]{2,6}-[0-9]{1,6}$")
-        pat_prefix = re.compile("[A-Z]*-[A-Z]*-[A-Z0-9]*_[A-Z]{2,6}-[0-9]{1,6}$")
-        print('The following devices fail the device role name validation tests:')
-        for row in res.iterrows():
-            if not ((pat_abb.match(row[1]['asset_name'])) or (pat_prefix.match(row[1]['asset_name']))):
-                print(row[1]['asset_name'], row[1]['asset_guid'])
-        print("----------------")
-
-        print('The following devices fail to follow the BDNS abbreviation:')
-        for row in res.iterrows():
-            if not row[1]['asset_name'].split('-')[0] == row[1]['abbreviation']:
-                print((row[1]['asset_name']))
-
     if res.empty:
         print('None of the ifc classes matches the BDNS ones .....')
     else:
         res.apply(create_qrcode, boxsize=10, axis=1)
+
+
+    if BDNS_VALIDATION:
+
+        BDNSVal = BDNSValidator(res)
+
+        failed_GUID = BDNSVal.validate_GUID()
+        print('The following devices fail the GUID validation tests:', *failed_GUID, sep="\n")
+        print("-------------------")
+
+        checkdup = BDNSVal.check_duplicates()
+        print("Duplicate GUID are:", *checkdup, sep='\n')
+        print("-------------------")
+
+        failed_DeviceName = BDNSVal.validate_DeviceName()
+        print('The following devices fail the device role name validation tests:', *failed_DeviceName, sep="\n")
+        print("-------------------")
+
+
+        faild_abb = BDNSVal.validate_abb()
+        print('The following devices fail to follow the BDNS abbreviation:', *faild_abb, sep="\n")
+        print("-------------------")
+
+
 
 
 if __name__ == "__main__":
