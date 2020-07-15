@@ -43,7 +43,7 @@ def main():
     group.add_argument("-v", "--verbose", action="store_true", default=True, help="increase the verbosity level")
     parser.add_argument("-t", "--inputtype", default=False, help="input type which can be gsheet, ifc or csv")
     parser.add_argument("-s", "--gsheetid", default=False, help="google spreadsheet ID")
-    parser.add_argument("-w", "--wrksheet", default="Sheet1", help="google spreadsheet worksheet")
+    parser.add_argument("-w", "--worksheet", default="Sheet1", help="google spreadsheet worksheet")
     parser.add_argument("-j", "--credsfile", default=False, help="credential json file")
     parser.add_argument("-f", "--ifcfilename", default=False, help="input IFC file name")
     parser.add_argument("-c", "--csvfilename", default=False, help="input CSV file name")
@@ -56,7 +56,7 @@ def main():
     IFC_FILE_PATH = args.ifcfilename
     CSV_FILE_PATH = args.csvfilename
     SPREADSHEET_ID = args.gsheetid
-    WORKSHEET = args.wrksheet
+    WORKSHEET = args.worksheet
     CREDENTIAL_FILE_PATH = args.credsfile
     OUTFOLDER = args.output
     BDNS_VALIDATION = args.bdnsflag
