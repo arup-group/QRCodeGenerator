@@ -4,3 +4,7 @@ qrcode
 pillow
 pandas
 pyfiglet
+regex
+unittest2
+pyzbar
+numpy

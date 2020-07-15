@@ -5,13 +5,16 @@
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 import qrcode
-import config.config_def as config
 import os
 from pyfiglet import Figlet
 import ifcopenshell
+from BDNS_validation import BDNSValidator
+from qrcode_gen import make_qrc
+import config.config_def as config
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+import numpy as np
 
-#from bs4 import BeautifulSoup
-#import requests
 
 
 __author__ = "Francesco Anselmo, Anushan Kirupakaran, Annalisa Romano"
@@ -19,17 +22,35 @@ __copyright__ = "Copyright 2019, Francesco Anselmo"
 __credits__ = ["Francesco Anselmo"]
 __license__ = "MIT"
 __version__ = "0.1"
-__maintainer__ = "Francesco Anselmo, , Anushan Kirupakaran, Annalisa Romano"
+__maintainer__ = "Francesco Anselmo, Anushan Kirupakaran, Annalisa Romano"
 __email__ = "francesco.anselmo@arup.com, anushan.kirupakaran@arup.com, annalisa.romano@arup.com"
 __status__ = "Dev"
 
 
 
 IFC_FILE_PATH = config.IFC_FILE_PATH
-OUTFOLDER_IFC = config.OUTFOLDER_IFC
+OUTFOLDER = config.OUTFOLDER
+URL_BDNS = config.URL_BDNS
+DEBUG = config.DEBUG
+BDNS_VALIDATION =  config.BDNS_VALIDATION
 
-if not os.path.exists(OUTFOLDER_IFC):
-    os.mkdir(OUTFOLDER_IFC)
+
+if not os.path.exists(OUTFOLDER):
+    os.mkdir(OUTFOLDER)
+
+
+
+def create_qrcode(row,boxsize):
+    color_text = row['color_text']
+    try:
+        caption = row['asset_name']
+    except:
+        caption = row['abbreviation']+"-"+row['RevitTag']
+    boxsize = boxsize
+
+    print("Creating the qr code for %s"%caption)
+    img = make_qrc(row['asset_guid'], caption, boxsize, color_text)
+    img.save(OUTFOLDER + "/%s.png" % caption)
 
 
 def show_title():
@@ -39,34 +60,77 @@ def show_title():
     print(f1.renderText('ifc2QRcode'))
 
 
-# url="https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)"
-#
-# # Make a GET request to fetch the raw HTML content
-# html_content = requests.get(url).text
-#
-# # Parse the html content
-# soup = BeautifulSoup(html_content, "lxml")
-# print(soup.prettify()) # print the parsed data of html
+def main():
 
-f = ifcopenshell.open(IFC_FILE_PATH)
+    show_title()
 
-products = f.by_type('IfcProduct')
-for product in products:
-    print(product.is_a())
+    # Read  in the BDNS naming abbreviation
+    bdns_csv = pd.read_csv(URL_BDNS)
+    bdns_abb = bdns_csv[['abbreviation', 'ifc_class']]
+
+    # Read  in the ifc file
+    f = ifcopenshell.open(IFC_FILE_PATH)
+    products = f.by_type('IfcProduct')
+
+    # Create a df with all ifc classes
+    d = []
+    for product in products:
+        asset_name = ''
+        definitions = product.IsDefinedBy
+        for definition in definitions:
+            if 'IfcRelDefinesByProperties' == definition.is_a():
+                property_definition = definition.RelatingPropertyDefinition
+                if 'Data' == property_definition.Name:
+                    for par in property_definition.HasProperties:
+                        if par.Name == 'asset_name':
+                            asset_name = par.NominalValue[0]
+        d.append({
+            'ifc_class': product.is_a(),
+            'asset_guid': product.GlobalId,
+            'RevitName': product.Name,
+            'asset_name': asset_name,
+             })
+
+    df = pd.DataFrame(d)
+    res = pd.merge(df, bdns_abb, how='left', on=['ifc_class']).dropna(subset=['asset_name', 'abbreviation'])
+    res['RevitTag'] = res['RevitName'].astype(str).apply(lambda x: x.split(':')[-1])
 
 
-# wall = f.by_type('IfcFlowTerminal')[0]
-# print(wall.GlobalId)
-# print(wall.Name)
+    if BDNS_VALIDATION:
+        BDNSVal = BDNSValidator(df)
 
 
+        print('The following devices fail the GUID validation tests:')
+        failed_GUID = BDNSVal.validate_GUID()
+        print("-------------------")
 
-# def main():
-#
-#     show_title()
-#
-#
-#
-# if __name__ == "__main__":
-#     main()
-#
+        print('The following devices fail the device role name validation tests:')
+        failed_DeviceName = BDNSVal.validate_DeviceName()
+        print("-------------------")
+
+        print('The following devices fail to follow the BDNS abbreviation:')
+        faild_abb = BDNSVal.validate_abb(bdns_csv)
+        print("-------------------")
+
+
+        l =  failed_GUID+failed_DeviceName+faild_abb
+        df['color_text'] = np.where(df['asset_name'].isin(l), 'red', 'black')
+
+
+        checkdup = BDNSVal.check_duplicates()
+        if not checkdup.empty:
+            print("Duplicate GUID are:")
+            print(checkdup)
+            print("-------------------")
+
+
+    # Generate QR code
+    if res.empty:
+        print('None of the ifc classes matches the BDNS ones .....')
+    else:
+        res.apply(create_qrcode, boxsize=10, axis=1)
+
+
+if __name__ == "__main__":
+    main()
+
