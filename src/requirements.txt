@@ -8,3 +8,4 @@ regex
 unittest2
 pyzbar
 numpy
+importlib

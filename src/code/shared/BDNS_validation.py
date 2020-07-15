@@ -23,7 +23,7 @@ class BDNSValidator():
         fail_list = []
         for row in self.df.iterrows():
             if not ((pat_abb.match(row[1]['asset_name'])) or (pat_prefix.match(row[1]['asset_name']))):
-                print(row[1]['asset_name'],row[1]['asset_guid'])
+                print(row[1]['asset_name'], row[1]['asset_guid'])
                 fail_list.append(row[1]['asset_name'])
         return fail_list
 
