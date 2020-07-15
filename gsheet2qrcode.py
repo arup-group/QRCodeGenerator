@@ -11,6 +11,7 @@ from pyfiglet import Figlet
 from BDNS_validation import BDNSValidator
 import config.config_def as config
 from qrcode_gen import make_qrc
+import numpy as np
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -50,15 +51,16 @@ SCOPES = ["https://spreadsheets.google.com/feeds",
 
 
 def create_qrcode(row,dict_font):
+    color_text = row['color_text']
     caption = row['asset_name']
     try:
-        font = row['size']
+        font = row['boxsize']
         boxsize = dict_font[font]
     except:
         boxsize = 10
     print("Creating the qr code for %s"%caption)
 
-    img = make_qrc(row['asset_guid'], caption, boxsize)
+    img = make_qrc(row['asset_guid'], caption, boxsize, color_text)
     img.save(OUTFOLDER_GS + "/%s.png" % caption)
 
 
@@ -67,19 +69,6 @@ def show_title():
     """
     f1 = Figlet(font='standard')
     print(f1.renderText('GSheet2QRcode'))
-
-# creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIAL_FILE_PATH, SCOPES)
-# client = gspread.authorize(creds)
-# sh = client.open_by_key(SPREADSHEET_ID)
-# wks = sh.worksheet(WORKSHEET)
-#
-# data = wks.get_all_values()
-# headers = data.pop(0)
-# df = pd.DataFrame(data, columns=headers)
-#
-#
-# bdns_csv = pd.read_csv(URL_BDNS)
-# bdns_abb = bdns_csv[['abbreviation', 'ifc_class']]
 
 
 def main():
@@ -95,22 +84,37 @@ def main():
     headers = data.pop(0)
     df = pd.DataFrame(data, columns=headers)
 
+    bdns_csv = pd.read_csv(URL_BDNS)
+    bdns_abb = bdns_csv[['abbreviation', 'ifc_class']]
+
 
     if BDNS_VALIDATION:
-
         BDNSVal = BDNSValidator(df)
 
+
+        print('The following devices fail the GUID validation tests:')
         failed_GUID = BDNSVal.validate_GUID()
-        print('The following devices fail the GUID validation tests:', *failed_GUID, sep = "\n")
         print("-------------------")
+
+        print('The following devices fail the device role name validation tests:')
+        failed_DeviceName = BDNSVal.validate_DeviceName()
+        print("-------------------")
+
+        print('The following devices fail to follow the BDNS abbreviation:')
+        faild_abb = BDNSVal.validate_abb(bdns_csv)
+        print("-------------------")
+
+
+        l =  failed_GUID+failed_DeviceName+faild_abb
+        df['color_text'] = np.where(df['asset_name'].isin(l), 'red', 'black')
+
 
         checkdup = BDNSVal.check_duplicates()
-        print("Duplicate GUID are:", *checkdup, sep='\n')
-        print("-------------------")
+        if not checkdup.empty:
+            print("Duplicate GUID are:")
+            print(checkdup)
+            print("-------------------")
 
-        failed_DeviceName = BDNSVal.validate_DeviceName()
-        print('The following devices fail the device role name validation tests:', *failed_DeviceName, sep = "\n")
-        print("-------------------")
 
     df.apply(create_qrcode, dict_font=DICTFONT, axis=1)
 

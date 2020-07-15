@@ -13,6 +13,7 @@ from qrcode_gen import make_qrc
 import config.config_def as config
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
+import numpy as np
 
 
 
@@ -40,6 +41,7 @@ if not os.path.exists(OUTFOLDER):
 
 
 def create_qrcode(row,boxsize):
+    color_text = row['color_text']
     try:
         caption = row['asset_name']
     except:
@@ -47,7 +49,7 @@ def create_qrcode(row,boxsize):
     boxsize = boxsize
 
     print("Creating the qr code for %s"%caption)
-    img = make_qrc(row['asset_guid'], caption, boxsize)
+    img = make_qrc(row['asset_guid'], caption, boxsize, color_text)
     img.save(OUTFOLDER + "/%s.png" % caption)
 
 
@@ -95,25 +97,31 @@ def main():
 
 
     if BDNS_VALIDATION:
+        BDNSVal = BDNSValidator(df)
 
-        BDNSVal = BDNSValidator(res)
 
+        print('The following devices fail the GUID validation tests:')
         failed_GUID = BDNSVal.validate_GUID()
-        print('The following devices fail the GUID validation tests:', *failed_GUID, sep="\n")
         print("-------------------")
+
+        print('The following devices fail the device role name validation tests:')
+        failed_DeviceName = BDNSVal.validate_DeviceName()
+        print("-------------------")
+
+        print('The following devices fail to follow the BDNS abbreviation:')
+        faild_abb = BDNSVal.validate_abb(bdns_csv)
+        print("-------------------")
+
+
+        l =  failed_GUID+failed_DeviceName+faild_abb
+        df['color_text'] = np.where(df['asset_name'].isin(l), 'red', 'black')
+
 
         checkdup = BDNSVal.check_duplicates()
-        print("Duplicate GUID are:", *checkdup, sep='\n')
-        print("-------------------")
-
-        failed_DeviceName = BDNSVal.validate_DeviceName()
-        print('The following devices fail the device role name validation tests:', *failed_DeviceName, sep="\n")
-        print("-------------------")
-
-
-        faild_abb = BDNSVal.validate_abb(bdns_csv)
-        print('The following devices fail to follow the BDNS abbreviation:', *faild_abb, sep="\n")
-        print("-------------------")
+        if not checkdup.empty:
+            print("Duplicate GUID are:")
+            print(checkdup)
+            print("-------------------")
 
 
     # Generate QR code
