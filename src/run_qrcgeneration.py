@@ -45,16 +45,14 @@ def main():
     parser.add_argument("-s", "--gsheetid", default=False, help="google spreadsheet ID")
     parser.add_argument("-w", "--worksheet", default="Sheet1", help="google spreadsheet worksheet")
     parser.add_argument("-j", "--credsfile", default=False, help="credential json file")
-    parser.add_argument("-f", "--ifcfilename", default=False, help="input IFC file name")
-    parser.add_argument("-c", "--csvfilename", default=False, help="input CSV file name")
+    parser.add_argument("-f", "--filename", default=False, help="input IFC or CSV file name")
     parser.add_argument("-o", "--output", default="output", help="output folder for the generated QR code")
     parser.add_argument("-b", "--bdnsflag", default=True, help="data validation against the BDNS initiative")
 
     args = parser.parse_args()
 
     INPUT_TYPE = args.inputtype
-    IFC_FILE_PATH = args.ifcfilename
-    CSV_FILE_PATH = args.csvfilename
+    INPUT_FILENAME = args.filename
     SPREADSHEET_ID = args.gsheetid
     WORKSHEET = args.worksheet
     CREDENTIAL_FILE_PATH = args.credsfile
@@ -81,9 +79,9 @@ def main():
     if INPUT_TYPE=='gsheet':
         inputfile = input_module.get_qrcodegen(SPREADSHEET_ID, WORKSHEET, CREDENTIAL_FILE_PATH, OUTFOLDER, BDNS_VALIDATION)
     elif INPUT_TYPE=='ifc':
-        inputfile = input_module.get_qrcodegen(IFC_FILE_PATH, OUTFOLDER, BDNS_VALIDATION)
+        inputfile = input_module.get_qrcodegen(INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION)
     elif INPUT_TYPE=='csv':
-        inputfile = input_module.get_qrcodegen(CSV_FILE_PATH, OUTFOLDER, BDNS_VALIDATION)
+        inputfile = input_module.get_qrcodegen(INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION)
 
 
     inputfile.start()
