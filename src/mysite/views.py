@@ -21,7 +21,7 @@ def external(request):
 
 
 
-    out=run([sys.executable, '/Users/annalisa.romano/BELFuture/QRCodeGenerator/src/run_qrcgeneration.py',
+    out=run([sys.executable, './run_qrcgeneration.py',
              "-t", inp_type,
              "-f", inp_filename,
              "-o", inp_output,

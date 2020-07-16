@@ -70,6 +70,9 @@ def main():
         print('Invoke %s -h for further information.\n' % argv[0])
         exit(1)
 
+    if not WORKSHEET:
+        WORKSHEET = 'Sheet1'
+
     if not OUTFOLDER:
         OUTFOLDER = 'output'
         pwd = os.getcwd()
