@@ -7,6 +7,7 @@ import ifcopenshell
 from code.shared.BDNS_validation import BDNSValidator
 from code.shared.qrcode_gen import make_qrc
 import numpy as np
+from string import Template
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -42,9 +43,14 @@ class IFCt2QRCODE:
 
         print("Creating the qr code for %s"%caption)
 
-        data = {"asset":{"guid":"ifc://"+row['asset_guid'],"name":row['asset_name']}}
+        data = Template("""{
+        "asset": {
+            "guid": "ifc://$asset_guid",
+            "name": $asset_name
+            }
+        }""")
 
-        img = make_qrc(data, caption, boxsize, color_text)
+        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name']), caption, boxsize,color_text)
         img.save(self.ouputfolder + "/%s.png" % caption)
 
 
