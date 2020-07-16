@@ -9,3 +9,4 @@ unittest2
 pyzbar
 numpy
 importlib
+Django
