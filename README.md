@@ -41,7 +41,7 @@ python run_qrcgeneration.py [args]
  \__\_\_| \_\\____\___/ \__,_|\___|\____|\___|_| |_|
                                                     
 
-usage: run_qrcgeneration.py [-h] [-v] [-t INPUTTYPE] [-s GSHEETID] [-w WRKSHEET] [-j CREDSFILE] [-f IFCFILENAME] [-c CSVFILENAME] [-o OUTPUT] [-b BDNSFLAG]
+usage: run_qrcgeneration.py [-h] [-v] [-t INPUTTYPE] [-s GSHEETID] [-w WORKSHEET] [-j CREDSFILE] [-f FILENAME] [-o OUTPUT] [-b BDNSFLAG]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -50,14 +50,12 @@ optional arguments:
                         input type which can be gsheet, ifc or csv
   -s GSHEETID, --gsheetid GSHEETID
                         google spreadsheet ID
-  -w WRKSHEET, --wrksheet WRKSHEET
+  -w WORKSHEET, --worksheet WORKSHEET
                         google spreadsheet worksheet
   -j CREDSFILE, --credsfile CREDSFILE
                         credential json file
-  -f IFCFILENAME, --ifcfilename IFCFILENAME
-                        input IFC file name
-  -c CSVFILENAME, --csvfilename CSVFILENAME
-                        input CSV file name
+  -f FILENAME, --filename FILENAME
+                        input IFC or CSV file name
   -o OUTPUT, --output OUTPUT
                         output folder for the generated QR code
   -b BDNSFLAG, --bdnsflag BDNSFLAG
