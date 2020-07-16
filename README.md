@@ -13,6 +13,8 @@ In order to be able to use IFC as input file you will need to install the python
 You can find the appropriate version of this module [here](http://ifcopenshell.org/python). 
 Download the module and place the extracted archive in the site-packages folder of your Python distribution.
 
+The QR code generato uses the `arial.ttf` font. You can download it [here](https://github.com/JotJunior/PHP-Boleto-ZF2/blob/master/public/assets/fonts/arial.ttf).
+
 ## Steps for generating the QR code from Google Sheets document, IFC and CSV files
 
 1. Create the input file following the istruction below:
@@ -31,7 +33,7 @@ python run_qrcgeneration.py [args]
 
 ## Command line options
 
-```bash
+```
   ___  ____   ____          _       ____            
  / _ \|  _ \ / ___|___   __| | ___ / ___| ___ _ __  
 | | | | |_) | |   / _ \ / _` |/ _ \ |  _ / _ \ '_ \ 
@@ -71,7 +73,7 @@ By default `BDNSFLAG =True` and this allow to:
 2. Check that the device name rule is fulfilled 
 3. Check if the abbreviation used is compliant with the [BDSN Abbreviations Register](https://github.com/theodi/BDNS/blob/master/BDNS_Abbreviations_Register.csv)
 
-These tests are in place for warning purpose.  If the device is not complient the QR code label will appear in red.
+These tests are in place for warning purpose.  If the device is not complaint the QR code label will appear in red.
 
 
 
