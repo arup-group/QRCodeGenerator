@@ -56,7 +56,14 @@ class GSheet2QRCODE:
             boxsize = 10
         print("Creating the qr code for %s"%caption)
 
-        img = make_qrc(row['asset_guid'], caption, boxsize, color_text)
+        data = {
+            "asset": {
+                "guid": "uuid://" + row['asset_guid'],
+                "name": row['asset_name']
+            }
+        }
+
+        img = make_qrc(data, caption, boxsize, color_text)
         img.save(self.ouputfolder + "/%s.png" % caption)
 
 
