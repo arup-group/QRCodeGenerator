@@ -7,7 +7,7 @@ def make_qrc(data, caption, boxsize, color_text='black'):
     width, height = qr.size
     bi = Image.new('RGBA', (width + 10, height + (height // 5)), 'white')
     bi.paste(qr, (5, 5, (width + 5), (height + 5)))
-    fontsize = boxsize * (110/15)
+    fontsize = boxsize * (80/15)
     Imfont = ImageFont.truetype("arial.ttf", int(fontsize))
     w, h = Imfont.getsize(caption)
     draw = ImageDraw.Draw(bi)
