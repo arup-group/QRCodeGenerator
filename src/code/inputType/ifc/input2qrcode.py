@@ -46,7 +46,7 @@ class IFCt2QRCODE:
         data = Template("""{
         "asset": {
             "guid": "ifc://$asset_guid",
-            "name": $asset_name
+            "name": "$asset_name"
             }
         }""")
 
