@@ -52,7 +52,7 @@ class CSV2QRCODE:
         data = Template("""{
         "asset": { 
             "guid": "uuid://$asset_guid",
-            "name": $asset_name
+            "name": "$asset_name"
             }
         }""")
 

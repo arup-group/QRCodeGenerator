@@ -36,7 +36,7 @@ def main():
             VERBOSE {[boolean]} -- increase the verbosity level
         """
 
-    show_title()
+    # show_title()
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
@@ -61,7 +61,7 @@ def main():
 
 
     if args.verbose:
-        print("program arguments:")
+        print("Program arguments:")
         print(args)
         print()
 
@@ -70,8 +70,17 @@ def main():
         print('Invoke %s -h for further information.\n' % argv[0])
         exit(1)
 
+    if not WORKSHEET:
+        WORKSHEET = 'Sheet1'
+
+    if not OUTFOLDER:
+        OUTFOLDER = 'output'
+        pwd = os.getcwd()
+        print('Results have been saved here: %s' % (pwd+'/'+OUTFOLDER))
+
     if not os.path.exists(OUTFOLDER):
         os.mkdir(OUTFOLDER)
+
 
 
     input_module = importlib.import_module("code.inputType.%s.input2qrcode" %INPUT_TYPE)
