@@ -39,7 +39,37 @@ The QR code generato uses the `arial.ttf` font. You can download it [here](https
     python run_qrcgeneration.py [args]
 
 
+## Command line options
 
+```
+  ___  ____   ____          _       ____            
+ / _ \|  _ \ / ___|___   __| | ___ / ___| ___ _ __  
+| | | | |_) | |   / _ \ / _` |/ _ \ |  _ / _ \ '_ \ 
+| |_| |  _ <| |__| (_) | (_| |  __/ |_| |  __/ | | |
+ \__\_\_| \_\\____\___/ \__,_|\___|\____|\___|_| |_|
+                                                    
+
+usage: run_qrcgeneration.py [-h] [-v] [-t INPUTTYPE] [-s GSHEETID] [-w WORKSHEET] [-j CREDSFILE] [-f FILENAME] [-o OUTPUT] [-b BDNSFLAG]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         increase the verbosity level
+  -t INPUTTYPE, --inputtype INPUTTYPE
+                        input type which can be gsheet, ifc or csv
+  -s GSHEETID, --gsheetid GSHEETID
+                        google spreadsheet ID
+  -w WORKSHEET, --worksheet WORKSHEET
+                        google spreadsheet worksheet
+  -j CREDSFILE, --credsfile CREDSFILE
+                        credential json file
+  -f FILENAME, --filename FILENAME
+                        input IFC or CSV file name
+  -o OUTPUT, --output OUTPUT
+                        output folder for the generated QR code
+  -b BDNSFLAG, --bdnsflag BDNSFLAG
+                        data validation against the BDNS initiative
+
+```      
 
 ## Validation against the BDNS initiative
 
@@ -56,7 +86,6 @@ These tests are in place for warning purpose.  If the device is not complaint th
 ## Reference
 
 [BDNS initiative](https://github.com/theodi/BDNS)
-
 
     
  
