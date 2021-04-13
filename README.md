@@ -79,7 +79,7 @@ By default `BDNSFLAG =True` and this allow to:
 2. Check that the device name rule is fulfilled 
 3. Check if the abbreviation used is compliant with the [BDSN Abbreviations Register](https://github.com/theodi/BDNS/blob/master/BDNS_Abbreviations_Register.csv)
 
-These tests are in place for warning purpose.  If the device is not complaint the QR code label will appear in red.
+These tests are in place for warning purposes.  If the device is not compliant, the QR code label will appear in red colour.
 
 
 
