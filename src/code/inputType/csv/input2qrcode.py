@@ -50,7 +50,7 @@ class CSV2QRCODE:
             boxsize = 10
         print("Creating the qr code for %s"%caption)
 
-        template_path = path.join(path.dirname(path.realpath(__file__)), 'qr.template')
+        template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', 'csv_qr.template')
         with open(template_path) as f:
             data = Template(f.read())
 

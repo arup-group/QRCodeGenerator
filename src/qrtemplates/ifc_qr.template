@@ -1,6 +1,6 @@
 {
   "asset": { 
-    "guid": "ifc://$asset_guid",
+    "guid": "uuid://$asset_guid",
     "name": "$asset_name"
   }
 }
