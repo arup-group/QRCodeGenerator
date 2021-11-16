@@ -6,7 +6,7 @@ def make_qrc(data, caption, boxsize, color_text='black'):
     qr = qrcode.make(data, box_size=boxsize)
     width, height = qr.size
     bi = Image.new('RGBA', (width + 10, height + (height // 5)), 'white')
-    bi.paste(qr, (5, 5, (width + 5), (height + 5))
+    bi.paste(qr, (5, 5, (width + 5), (height + 5)))
     fontsize = boxsize * (80/15)
     fontsize = boxsize * (70/15)
     Imfont = ImageFont.truetype("arial.ttf", int(fontsize))

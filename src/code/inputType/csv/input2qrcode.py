@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from os import path
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
@@ -49,12 +50,9 @@ class CSV2QRCODE:
             boxsize = 10
         print("Creating the qr code for %s"%caption)
 
-        data = Template("""{
-        "asset": { 
-            "guid": "uuid://$asset_guid",
-            "name": "$asset_name"
-            }
-        }""")
+        template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', 'csv_qr.template')
+        with open(template_path) as f:
+            data = Template(f.read())
 
         img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name']), caption, boxsize, color_text)
         img.save(self.ouputfolder + "/%s.png" % caption)
@@ -66,7 +64,7 @@ class CSV2QRCODE:
         df = pd.read_csv(self.csv_file)
 
         bdns_csv = pd.read_csv(URL_BDNS)
-        bdns_abb = bdns_csv[['abbreviation', 'ifc_class']]
+        bdns_abb = bdns_csv[['asset_abbreviation', 'ifc_class']]
 
 
         if self.BDNS_validation:
