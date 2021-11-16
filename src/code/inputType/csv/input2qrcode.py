@@ -66,7 +66,7 @@ class CSV2QRCODE:
         df = pd.read_csv(self.csv_file)
 
         bdns_csv = pd.read_csv(URL_BDNS)
-        bdns_abb = bdns_csv[['abbreviation', 'ifc_class']]
+        bdns_abb = bdns_csv[['asset_abbreviation', 'ifc_class']]
 
 
         if self.BDNS_validation:

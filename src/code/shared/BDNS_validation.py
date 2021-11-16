@@ -42,7 +42,7 @@ class BDNSValidator():
             else:
                 asset_name = row[1]['asset_name']
 
-            if not bdns_csv['abbreviation'].str.contains(asset_name.split('-')[0]).any():
+            if not bdns_csv['asset_abbreviation'].str.contains(asset_name.split('-')[0]).any():
                 print(row[1]['asset_name'], row[1]['asset_guid'])
                 abb_list.append(row[1]['asset_name'])
 
