@@ -89,6 +89,7 @@ By default `MinifiedFLAG =False` and this:
 1. Encodes the json stripped of whitespace
 2. Uses ```src/qrtemplates/*.min.*``` template files, instead of non-minified templates
 
+CSV input file must add "asset.site" column to encode the site property in the json
 
 ## Reference
 
