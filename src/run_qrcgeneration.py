@@ -21,6 +21,22 @@ def show_title():
     f1 = Figlet(font='standard')
     print(f1.renderText('QRCodeGen'))
 
+def convertToBool(strParam):
+    res = False
+    
+    try:       
+        strParam = strParam.lower()
+        true_list = ['true','yes','1']
+        false_list = ['false','no','0']
+        
+        if strParam in true_list:
+            res = True
+    except:
+        print('Exception on string to bool conversion %s', str(strParam))
+        
+    #print(str(res))
+    return res        
+    
 def main():
 
     """Generate QR code from gsheet, ifc and csv files.
@@ -58,9 +74,8 @@ def main():
     WORKSHEET = args.worksheet
     CREDENTIAL_FILE_PATH = args.credsfile
     OUTFOLDER = args.output
-    MINIFIED = args.minifiedflag
+    MINIFIED = convertToBool(args.minifiedflag)
     BDNS_VALIDATION = args.bdnsflag
-
 
     if args.verbose:
         print("Program arguments:")
