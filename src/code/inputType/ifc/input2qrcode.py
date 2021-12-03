@@ -31,7 +31,7 @@ class IFCt2QRCODE:
         self.ifc_input = ifc_input
         self.ouputfolder = ouputfolder
         self.BDNS_validation = bdns_flag
-        self.minifiedflag = minifiedflag
+        self.minified_flag = minifiedflag
 
 
     def create_qrcode(self, row, boxsize):
@@ -42,9 +42,10 @@ class IFCt2QRCODE:
             caption = row['abbreviation']+"-"+row['RevitTag']
         boxsize = boxsize
 
-        print("Creating the qr code for %s"%caption)
+        print("Creating the " + ("minified " if self.minified_flag == 'True' else "") + "qr code for %s"%caption)
 
-        template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', ('ifc_qr.' + ('min.' if self.minifiedflag == True else '')) + 'template')
+        template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', ('ifc_qr.' + ('min.' if self.minified_flag == 'True' else '')) + 'template')
+        #print('template_path: %s, %s, %s'  %(template_path, self.minified_flag, ('min.' if self.minified_flag == 'True' else '')))
         with open(template_path) as f:
             data = Template(f.read())
 

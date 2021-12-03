@@ -46,7 +46,7 @@ class GSheet2QRCODE:
         self.creds = credentials_file_path
         self.ouputfolder = ouputfolder
         self.BDNS_validation = bdns_flag
-        self.minifiedflag = minifiedflag
+        self.minified_flag = minifiedflag
 
 
     def create_qrcode(self, row,dict_font):
@@ -57,9 +57,10 @@ class GSheet2QRCODE:
             boxsize = dict_font[font]
         except:
             boxsize = 10
-        print("Creating the qr code for %s"%caption)
+        print("Creating the " + ("minified " if self.minified_flag == 'True' else "") + "qr code for %s"%caption)
 
-        template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', ('gsheet_qr.' + 'min.' if self.minifiedflag else '') + 'template')
+        template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', ('gsheet_qr.' + ('min.' if self.minified_flag == True else '')) + 'template')
+        #print('template_path: %s, %s, %s'  %(template_path, self.minified_flag, ('min.' if self.minified_flag == 'True' else '')))
         with open(template_path) as f:
             data = Template(f.read())
 
