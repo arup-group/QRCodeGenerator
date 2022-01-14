@@ -63,7 +63,7 @@ def main():
     parser.add_argument("-j", "--credsfile", default=False, help="credential json file")
     parser.add_argument("-f", "--filename", default=False, help="input IFC or CSV file name")
     parser.add_argument("-o", "--output", default="output", help="output folder for the generated QR code")
-    parser.add_argument("-m", "--minifiedflag", default=False, help="the encoded data removes embedded spaces")
+    parser.add_argument("-m", "--minifiedflag", default=False, help="the encoded data removes embedded white spaces")
     parser.add_argument("-b", "--bdnsflag", default=True, help="data validation against the BDNS initiative")
 
     args = parser.parse_args()

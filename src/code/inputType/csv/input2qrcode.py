@@ -46,10 +46,10 @@ class CSV2QRCODE:
         color_text = row['color_text']
         caption = row['asset_name']
         try:
-            font = row['boxsize']
-            boxsize = dict_font[font]
+            font = row['size']
+            boxsize = font #dict_font[font]
         except:
-            boxsize = 10
+            boxsize = 3
         print("Creating the " + ("minified " if self.minified_flag == True else "") + "qr code for %s"%caption)
 
         template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', ('csv_qr.' + ('min.' if self.minified_flag == True else '')) + 'template')
