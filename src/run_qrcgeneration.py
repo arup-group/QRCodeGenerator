@@ -14,15 +14,14 @@ __email__ = "francesco.anselmo@arup.com, anushan.kirupakaran@arup.com, annalisa.
 __status__ = "Dev"
 
 
-
 def show_title():
     """Show the program title
     """
     f1 = Figlet(font='standard')
     print(f1.renderText('QRCodeGen'))
 
-def main():
 
+def main():
     """Generate QR code from gsheet, ifc and csv files.
         Arguments:
             INPUT_TYPE {[string]} -- input type which can be gsheet, ifc or csv
@@ -40,14 +39,22 @@ def main():
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-v", "--verbose", action="store_true", default=True, help="increase the verbosity level")
-    parser.add_argument("-t", "--inputtype", default=False, help="input type which can be gsheet, ifc or csv")
-    parser.add_argument("-s", "--gsheetid", default=False, help="google spreadsheet ID")
-    parser.add_argument("-w", "--worksheet", default="Sheet1", help="google spreadsheet worksheet")
-    parser.add_argument("-j", "--credsfile", default=False, help="credential json file")
-    parser.add_argument("-f", "--filename", default=False, help="input IFC or CSV file name")
-    parser.add_argument("-o", "--output", default="output", help="output folder for the generated QR code")
-    parser.add_argument("-b", "--bdnsflag", default=True, help="data validation against the BDNS initiative")
+    group.add_argument("-v", "--verbose", action="store_true",
+                       default=True, help="increase the verbosity level")
+    parser.add_argument("-t", "--inputtype", default=False,
+                        help="input type which can be gsheet, ifc or csv")
+    parser.add_argument("-s", "--gsheetid", default=False,
+                        help="google spreadsheet ID")
+    parser.add_argument("-w", "--worksheet", default="Sheet1",
+                        help="google spreadsheet worksheet")
+    parser.add_argument("-j", "--credsfile", default=False,
+                        help="credential json file")
+    parser.add_argument("-f", "--filename", default=False,
+                        help="input IFC or CSV file name")
+    parser.add_argument("-o", "--output", default="output",
+                        help="output folder for the generated QR code")
+    parser.add_argument("-b", "--bdnsflag", default=True,
+                        help="data validation against the BDNS initiative")
 
     args = parser.parse_args()
 
@@ -59,13 +66,12 @@ def main():
     OUTFOLDER = args.output
     BDNS_VALIDATION = args.bdnsflag
 
-
     if args.verbose:
         print("Program arguments:")
         print(args)
         print()
 
-    if not ((INPUT_TYPE=='gsheet') or (INPUT_TYPE=='ifc') or (INPUT_TYPE=='csv')):
+    if not ((INPUT_TYPE == 'gsheet') or (INPUT_TYPE == 'ifc') or (INPUT_TYPE == 'csv')):
         print('Please choose an input type between gsheet, ifc and csv')
         print('Invoke %s -h for further information.\n' % argv[0])
         exit(1)
@@ -76,22 +82,23 @@ def main():
     if not OUTFOLDER:
         OUTFOLDER = 'output'
         pwd = os.getcwd()
-        print('Results have been saved here: %s' % (pwd+'/'+OUTFOLDER))
+        print('\nResults have been saved here: %s' % (pwd+'/'+OUTFOLDER))
 
     if not os.path.exists(OUTFOLDER):
         os.mkdir(OUTFOLDER)
 
+    input_module = importlib.import_module(
+        "code.inputType.%s.input2qrcode" % INPUT_TYPE)
 
-
-    input_module = importlib.import_module("code.inputType.%s.input2qrcode" %INPUT_TYPE)
-
-    if INPUT_TYPE=='gsheet':
-        inputfile = input_module.get_qrcodegen(SPREADSHEET_ID, WORKSHEET, CREDENTIAL_FILE_PATH, OUTFOLDER, BDNS_VALIDATION)
-    elif INPUT_TYPE=='ifc':
-        inputfile = input_module.get_qrcodegen(INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION)
-    elif INPUT_TYPE=='csv':
-        inputfile = input_module.get_qrcodegen(INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION)
-
+    if INPUT_TYPE == 'gsheet':
+        inputfile = input_module.get_qrcodegen(
+            SPREADSHEET_ID, WORKSHEET, CREDENTIAL_FILE_PATH, OUTFOLDER, BDNS_VALIDATION)
+    elif INPUT_TYPE == 'ifc':
+        inputfile = input_module.get_qrcodegen(
+            INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION)
+    elif INPUT_TYPE == 'csv':
+        inputfile = input_module.get_qrcodegen(
+            INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION)
 
     inputfile.start()
 
