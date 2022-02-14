@@ -1,56 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var elems = document.querySelectorAll('select');
+      var instances = M.FormSelect.init(elems, options);
+    });
+  </script>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
         <title>
             Python button script
         </title>
 </head>
 <body>
 
-    <h1>QR code generator</h1>
-
-    <form action="/external" method="post">
-        {% csrf_token %}
-        <label for="InputType">Choose input type: </label>
-        <select type="text" id="InputType" name="param" onchange="myFunction(this.value)" required>
-        <option selected value=""> </option>
-            <option value="csv">csv</option>
-        <option value="ifc">ifc</option>
-        <option value="gsheet">Google Sheet</option>
-        </select>
-        <br><br>
-        Input File Path: <input type="text" name="filename" id="filename" ><br><br>
-        Google Spreadsheet ID: <input type="text" name="gsid" id="gsid" ><br><br>
-        Worksheet: <input type="text" name="wks" id="wks"><br><br>
-        Credentials Path (.json) <input type="text" name="creds" id="creds"><br><br>
-        Output Folder Path: <input type="text" name="output" id="output"><br><br>
-        {{data_external}}<br><br>
-        {{data1}}
-        <br><br>
-        <input type="submit" value="Execute Script">
-
-        <script>
-         function myFunction(val) {
-              if (val=="csv" || val=="ifc"){
-
-                document.getElementById("gsid").style.display="none";
-                document.getElementById("wks").style.display="none";
-                document.getElementById("creds").style.display="none";
-                document.getElementById("filename").style.display="inline"
-
+    <div class="container">
+      <h1>QR code generator</h1>
+      <form action="/external" method="post">
+          {% csrf_token %}
+          <div class="input-field">
+            <label for="InputType">Choose input type: </label>
+            <select type="text" id="InputType" name="param" onchange="myFunction(this.value)" required>
+              <option selected value=""> </option>
+              <option value="csv">csv</option>
+              <option value="ifc">ifc</option>
+              <option value="gsheet">Google Sheet</option>
+            </select>
+          </div>
+          <br><br>
+          Input File Path: <input type="text" name="filename" id="filename" ><br><br>
+          Google Spreadsheet ID: <input type="text" name="gsid" id="gsid" ><br><br>
+          Worksheet: <input type="text" name="wks" id="wks"><br><br>
+          Credentials Path (.json) <input type="text" name="creds" id="creds"><br><br>
+          Output Folder Path: <input type="text" name="output" id="output"><br><br>
+          {{data_external}}<br><br>
+          {{data1}}
+          <br><br>
+          <input type="submit" value="Execute Script">
+          <script>
+           function myFunction(val) {
+                if (val=="csv" || val=="ifc"){
+                  document.getElementById("gsid").style.display="none";
+                  document.getElementById("wks").style.display="none";
+                  document.getElementById("creds").style.display="none";
+                  document.getElementById("filename").style.display="inline"
+                }
+                else {
+                 document.getElementById("gsid").style.display="inline";
+                 document.getElementById("wks").style.display="inline";
+                 document.getElementById("creds").style.display="inline";
+                 document.getElementById("filename").style.display="none"
+                }
               }
-              else {
-
-               document.getElementById("gsid").style.display="inline";
-               document.getElementById("wks").style.display="inline";
-               document.getElementById("creds").style.display="inline";
-               document.getElementById("filename").style.display="none"
-              }
-            }
-        </script>
-
-
-    </form>
+          </script>
+      </form>
+    </div>
 
 </body>
 </html>
