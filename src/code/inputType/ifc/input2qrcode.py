@@ -49,7 +49,7 @@ class IFCt2QRCODE:
         with open(template_path) as f:
             data = Template(f.read())
 
-        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name']), caption, boxsize,color_text)
+        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name']), caption, "", boxsize,color_text)
         img.save(self.ouputfolder + "/%s.png" % caption)
 
 

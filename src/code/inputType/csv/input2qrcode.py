@@ -13,7 +13,6 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-
 DICTFONT = { "small":5,
              "medium":10,
              "large":15
@@ -43,8 +42,10 @@ class CSV2QRCODE:
 
 
     def create_qrcode(self, row,dict_font):
+    
         color_text = row['color_text']
         caption = row['asset_name']
+        
         try:
             font = row['size']
             boxsize = font #dict_font[font]
@@ -57,7 +58,13 @@ class CSV2QRCODE:
         with open(template_path) as f:
             data = Template(f.read())
 
-        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name'], asset_site=row['asset_site']), caption, boxsize, color_text)
+        caption2 = row['bms_label'] 
+        if caption2 == None or pd.isnull(caption2) :
+            caption2 = '' 
+        
+        print('bms_label: %s' %(caption2))
+        
+        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name'], asset_site=row['asset_site']), caption, caption2, boxsize, color_text)
         img.save(self.ouputfolder + "/%s.png" % caption)
 
 

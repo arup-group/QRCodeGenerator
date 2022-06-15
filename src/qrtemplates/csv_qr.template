@@ -1,7 +1,7 @@
 {
   "asset": { 
     "guid": "uuid://$asset_guid",
-    "name": "$asset_name",
-    "site": "$asset_site"
+    "site": "$asset_site",
+    "name": "$asset_name"
   }
 }
