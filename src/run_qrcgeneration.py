@@ -21,6 +21,22 @@ def show_title():
     f1 = Figlet(font='standard')
     print(f1.renderText('QRCodeGen'))
 
+def convertToBool(strParam):
+    res = False
+    
+    try:       
+        strParam = strParam.lower()
+        true_list = ['true','yes','1']
+        false_list = ['false','no','0']
+        
+        if strParam in true_list:
+            res = True
+    except:
+        print('Exception on string to bool conversion %s', str(strParam))
+        
+    #print(str(res))
+    return res        
+    
 def main():
 
     """Generate QR code from gsheet, ifc and csv files.
@@ -47,6 +63,7 @@ def main():
     parser.add_argument("-j", "--credsfile", default=False, help="credential json file")
     parser.add_argument("-f", "--filename", default=False, help="input IFC or CSV file name")
     parser.add_argument("-o", "--output", default="output", help="output folder for the generated QR code")
+    parser.add_argument("-m", "--minifiedflag", default=False, help="the encoded data removes embedded white spaces")
     parser.add_argument("-b", "--bdnsflag", default=True, help="data validation against the BDNS initiative")
 
     args = parser.parse_args()
@@ -57,8 +74,8 @@ def main():
     WORKSHEET = args.worksheet
     CREDENTIAL_FILE_PATH = args.credsfile
     OUTFOLDER = args.output
+    MINIFIED = convertToBool(args.minifiedflag)
     BDNS_VALIDATION = args.bdnsflag
-
 
     if args.verbose:
         print("Program arguments:")
@@ -86,11 +103,11 @@ def main():
     input_module = importlib.import_module("code.inputType.%s.input2qrcode" %INPUT_TYPE)
 
     if INPUT_TYPE=='gsheet':
-        inputfile = input_module.get_qrcodegen(SPREADSHEET_ID, WORKSHEET, CREDENTIAL_FILE_PATH, OUTFOLDER, BDNS_VALIDATION)
+        inputfile = input_module.get_qrcodegen(SPREADSHEET_ID, WORKSHEET, CREDENTIAL_FILE_PATH, OUTFOLDER, BDNS_VALIDATION, MINIFIED)
     elif INPUT_TYPE=='ifc':
-        inputfile = input_module.get_qrcodegen(INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION)
+        inputfile = input_module.get_qrcodegen(INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION, MINIFIED)
     elif INPUT_TYPE=='csv':
-        inputfile = input_module.get_qrcodegen(INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION)
+        inputfile = input_module.get_qrcodegen(INPUT_FILENAME, OUTFOLDER, BDNS_VALIDATION, MINIFIED)
 
 
     inputfile.start()

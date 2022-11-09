@@ -26,8 +26,8 @@ SCOPES = ["https://spreadsheets.google.com/feeds",
 URL_BDNS = 'https://raw.githubusercontent.com/theodi/BDNS/master/BDNS_Abbreviations_Register.csv'
 
 
-def get_qrcodegen(spreadsheet_id, sheet, credentials_file_path, ouputfolder, bdns_flag):
-    return GSheet2QRCODE(spreadsheet_id, sheet, credentials_file_path, ouputfolder, bdns_flag)
+def get_qrcodegen(spreadsheet_id, sheet, credentials_file_path, ouputfolder, bdns_flag, minifiedflag):
+    return GSheet2QRCODE(spreadsheet_id, sheet, credentials_file_path, ouputfolder, bdns_flag, minifiedflag)
 
 
 class GSheet2QRCODE:
@@ -37,7 +37,8 @@ class GSheet2QRCODE:
                  sheet,
                  credentials_file_path,
                  ouputfolder,
-                 bdns_flag
+                 bdns_flag, 
+                 minifiedflag
                  ):
 
         self.spreadsheet_id = spreadsheet_id
@@ -45,6 +46,7 @@ class GSheet2QRCODE:
         self.creds = credentials_file_path
         self.ouputfolder = ouputfolder
         self.BDNS_validation = bdns_flag
+        self.minified_flag = minifiedflag
 
 
     def create_qrcode(self, row,dict_font):
@@ -55,16 +57,14 @@ class GSheet2QRCODE:
             boxsize = dict_font[font]
         except:
             boxsize = 10
-        print("Creating the qr code for %s"%caption)
+        print("Creating the " + ("minified " if self.minified_flag == True else "") + "qr code for %s"%caption)
 
-        data = Template("""{
-        "asset": { 
-            "guid": "ifc://$asset_guid",
-            "name": "$asset_name"
-            }
-        }""")
+        template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', ('gsheet_qr.' + ('min.' if self.minified_flag == True else '')) + 'template')
+        #print('template_path: %s, %s, %s'  %(template_path, self.minified_flag, ('min.' if self.minified_flag == True else '')))
+        with open(template_path) as f:
+            data = Template(f.read())
 
-        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name']), caption, boxsize,color_text)
+        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name']), caption, "", boxsize,color_text)
         img.save(self.ouputfolder + "/%s.png" % caption)
 
 

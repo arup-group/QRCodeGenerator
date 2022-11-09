@@ -16,21 +16,22 @@ ssl._create_default_https_context = ssl._create_unverified_context
 URL_BDNS = 'https://raw.githubusercontent.com/theodi/BDNS/master/BDNS_Abbreviations_Register.csv'
 
 
-def get_qrcodegen(ifc_input, ouputfolder, bdns_flag):
-    return IFCt2QRCODE(ifc_input, ouputfolder, bdns_flag)
+def get_qrcodegen(ifc_input, ouputfolder, bdns_flag, minifiedflag):
+    return IFCt2QRCODE(ifc_input, ouputfolder, bdns_flag, minifiedflag)
 
 class IFCt2QRCODE:
 
     def __init__(self,
                  ifc_input,
                  ouputfolder,
-                 bdns_flag
+                 bdns_flag, 
+                 minifiedflag
                  ):
 
         self.ifc_input = ifc_input
         self.ouputfolder = ouputfolder
         self.BDNS_validation = bdns_flag
-
+        self.minified_flag = minifiedflag
 
 
     def create_qrcode(self, row, boxsize):
@@ -41,16 +42,14 @@ class IFCt2QRCODE:
             caption = row['abbreviation']+"-"+row['RevitTag']
         boxsize = boxsize
 
-        print("Creating the qr code for %s"%caption)
+        print("Creating the " + ("minified " if self.minified_flag == True else "") + "qr code for %s"%caption)
 
-        data = Template("""{
-        "asset": {
-            "guid": "ifc://$asset_guid",
-            "name": "$asset_name"
-            }
-        }""")
+        template_path = path.join(path.dirname(path.realpath(__file__)), '..', '..', '..', 'qrtemplates', ('ifc_qr.' + ('min.' if self.minified_flag == True else '')) + 'template')
+        #print('template_path: %s, %s, %s'  %(template_path, self.minified_flag, ('min.' if self.minified_flag == True else '')))
+        with open(template_path) as f:
+            data = Template(f.read())
 
-        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name']), caption, boxsize,color_text)
+        img = make_qrc(data.substitute(asset_guid=row['asset_guid'], asset_name=row['asset_name']), caption, "", boxsize,color_text)
         img.save(self.ouputfolder + "/%s.png" % caption)
 
 
